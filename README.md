@@ -75,3 +75,20 @@ editor. Google may ask for authorization for the current spreadsheet. The
 dialog shows counts only. The script reads the selected range, skips blank
 rows, and compares displayed text case-sensitively after trimming outer
 spaces. It makes no edits and calls no external service.
+
+## JSON Lines Check
+
+Run `python jsonl_check.py export.jsonl --objects` to validate an NDJSON
+export with one object per line. Omit `--objects` to accept any JSON value.
+Blank lines and malformed records are errors. The script prints counts and
+up to 20 offending line numbers without showing record contents. Exit codes
+are 0 for clean input, 1 for invalid records, and 2 for unreadable input.
+
+## Excel Whitespace Audit
+
+In a workbook with Office Scripts enabled, open Automate > New Script and
+paste [excel_whitespace_audit.ts](excel_whitespace_audit.ts). Select a single
+range of up to 100,000 cells, run the script, and read the counts in Output.
+It flags leading or trailing whitespace in text cells, including cells
+that contain only whitespace. It skips formulas and leaves the workbook
+unchanged. The script makes no external requests.
