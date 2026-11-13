@@ -65,3 +65,13 @@ Use GitHub Code > Download ZIP, extract it, and run the commands above from the 
 ## Скачать и запустить
 
 Нажмите Code > Download ZIP, распакуйте архив и откройте терминал в папке программы. Нужен Python 3.10 или новее. Команды выше запускаются без установки сторонних библиотек. Это исходники, не EXE-установщик.
+
+## Google Sheets duplicate row counter
+
+Copy [sheets_duplicate_rows.gs](sheets_duplicate_rows.gs) into Extensions >
+Apps Script in your sheet and save it. Select the relevant columns and rows,
+including a header, then run `vilodDuplicateRowCount` from the Apps Script
+editor. Google may ask for authorization for the current spreadsheet. The
+dialog shows counts only. The script reads the selected range, skips blank
+rows, and compares displayed text case-sensitively after trimming outer
+spaces. It makes no edits and calls no external service.
