@@ -1,6 +1,6 @@
 # Vilod Tools
 
-Six small offline command-line utilities. Version 0.1.0 - initial preview.
+Seven small offline command-line utilities. Version 0.2.0.
 Python 3.10 or newer is required. No external packages, accounts, telemetry or network calls.
 This is a source distribution, not a Windows executable or graphical application.
 
@@ -13,9 +13,12 @@ Run commands from this folder. On Windows, use `py` instead of `python` if neede
 | `python vilod_tools.py hash example.txt` | Calculate SHA-256 |
 | `python vilod_tools.py compare folder-a folder-b` | Compare relative paths and file contents |
 | `python vilod_tools.py duplicates folder-a` | Find identical files without deleting anything |
+| `python vilod_tools.py folder-stats folder-a` | Count files and bytes by extension without reading contents |
 | `python vilod_tools.py json-check example.json` | Validate JSON syntax and detect duplicate keys |
 | `python vilod_tools.py csv-check example.csv --delimiter ";"` | Check headers and row widths |
 | `python vilod_tools.py redact raw.log clean.log` | Create a separate masked text copy |
+
+`folder-stats` reports counts, sizes and extensions without listing filenames. An empty extension key means no extension. Review uncommon extensions before sharing.
 
 Outputs are JSON, except errors. Exit codes: 0 = completed, 1 = validation issues,
 2 = operation failed. Folder differences are reported as data, not an error exit.

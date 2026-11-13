@@ -4,12 +4,14 @@ import csv
 import hashlib
 import io
 import json
+import os
+import stat
 import re
 import sys
 from collections import defaultdict
 from pathlib import Path
 
-VERSION = '0.1.0'
+VERSION = '0.2.0'
 
 
 def digest(path):
@@ -46,6 +48,37 @@ def duplicates(root):
     for name, sha in snapshot(root).items():
         groups[sha].append(name)
     return [names for names in groups.values() if len(names) > 1]
+
+
+def folder_stats(root):
+    root = Path(root)
+    if not root.is_dir():
+        raise ValueError('Expected an existing folder')
+
+    def scan_error(error):
+        raise error
+
+    extensions = {}
+    file_count = total_bytes = 0
+    for directory, folders, files in os.walk(root, onerror=scan_error):
+        base = Path(directory)
+        if sys.platform == 'win32':
+            folders[:] = [name for name in folders
+                          if not ((base / name).lstat().st_file_attributes
+                                  & stat.FILE_ATTRIBUTE_REPARSE_POINT)]
+        for name in files:
+            path = base / name
+            info = path.lstat()
+            if not stat.S_ISREG(info.st_mode):
+                continue
+            extension = path.suffix.lower()
+            bucket = extensions.setdefault(extension, {'files': 0, 'bytes': 0})
+            bucket['files'] += 1
+            bucket['bytes'] += info.st_size
+            file_count += 1
+            total_bytes += info.st_size
+    return {'files': file_count, 'bytes': total_bytes,
+            'extensions': dict(sorted(extensions.items()))}
 
 
 def json_check(text):
@@ -112,6 +145,8 @@ def main(argv=None):
     p = subs.add_parser('hash', help='SHA-256 of one file'); p.add_argument('file')
     p = subs.add_parser('compare', help='Compare folder contents'); p.add_argument('left'); p.add_argument('right')
     p = subs.add_parser('duplicates', help='Find byte-identical files without deleting'); p.add_argument('folder')
+    p = subs.add_parser('folder-stats', help='Count files and bytes by extension')
+    p.add_argument('folder')
     p = subs.add_parser('json-check', help='Check JSON syntax and duplicate keys'); p.add_argument('file')
     p = subs.add_parser('csv-check', help='Check CSV column counts and headers'); p.add_argument('file'); p.add_argument('--delimiter', default=',')
     p = subs.add_parser('redact', help='Mask common patterns in UTF-8 text; manual review required')
@@ -124,6 +159,8 @@ def main(argv=None):
             result = compare(args.left, args.right)
         elif args.command == 'duplicates':
             result = {'duplicate_groups': duplicates(args.folder)}
+        elif args.command == 'folder-stats':
+            result = folder_stats(args.folder)
         elif args.command == 'json-check':
             result = json_check(read_text(args.file))
         elif args.command == 'csv-check':
